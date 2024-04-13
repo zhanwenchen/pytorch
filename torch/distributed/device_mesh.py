@@ -214,6 +214,7 @@ else:
                 else torch.tensor(mesh, dtype=torch.int)
             )
             self.mesh_dim_names = tuple(mesh_dim_names) if mesh_dim_names else None
+            self._thread_id = threading.get_ident()
 
             # private field to pre-generate DeviceMesh's hash
             self._flatten_mesh_list = tuple(self.mesh.flatten().tolist())
@@ -223,6 +224,7 @@ else:
                     self.mesh.shape,
                     self.device_type,
                     self.mesh_dim_names,
+                    self._thread_id,
                 )
             )
 
@@ -350,7 +352,16 @@ else:
         def __eq__(self, other: object) -> bool:
             if not isinstance(other, DeviceMesh):
                 return False
-            return self._hash == other._hash
+            if id(self) == id(other):
+                return True
+            else:
+                return (
+                    self._flatten_mesh_list == other._flatten_mesh_list
+                    and self.mesh.shape == other.mesh.shape
+                    and self.device_type == other.device_type
+                    and self.mesh_dim_names == other.mesh_dim_names
+                    and self._thread_id == other._thread_id
+                )
 
         def __getitem__(self, mesh_dim_name: str) -> "DeviceMesh":
             """
