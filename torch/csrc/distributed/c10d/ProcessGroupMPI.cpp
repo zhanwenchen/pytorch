@@ -586,7 +586,8 @@ c10::intrusive_ptr<Work> ProcessGroupMPI::gather(
           const std::vector<at::Tensor>& outputDataVec = entry->dst;
           // copy the flattened output tensors to the outputs
           for (const auto i : c10::irange(outputDataVec.size())) {
-            outputDataVec.at(i).copy_(flatOutputTensor[static_cast<int64_t>(i)]);
+            outputDataVec.at(i).copy_(
+                flatOutputTensor[static_cast<int64_t>(i)]);
           }
         }
       };
@@ -801,8 +802,10 @@ c10::intrusive_ptr<Work> ProcessGroupMPI::alltoall(
             send_lengths.begin(), send_lengths.end());
         std::vector<int64_t> recv_lengthsL(
             recv_lengths.begin(), recv_lengths.end());
-        at::Tensor srcFlatData = at::empty({static_cast<int64_t>(src_len)}, srcdata[0].options());
-        at::Tensor dstFlatData = at::empty({static_cast<int64_t>(dst_len)}, dstdata[0].options());
+        at::Tensor srcFlatData =
+            at::empty({static_cast<int64_t>(src_len)}, srcdata[0].options());
+        at::Tensor dstFlatData =
+            at::empty({static_cast<int64_t>(dst_len)}, dstdata[0].options());
         auto srcFlatDataSplits =
             srcFlatData.split_with_sizes(c10::IntArrayRef(send_lengthsL), 0);
         for (const auto i : c10::irange(size_)) {
