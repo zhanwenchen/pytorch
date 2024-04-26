@@ -63,7 +63,7 @@ class TORCH_API ProcessGroup : public torch::CustomClassHolder {
     const std::string backend;
   };
 
-  enum BackendType {
+  enum BackendType : uint8_t {
     UNDEFINED = 0,
     GLOO = 1,
     NCCL = 2,
