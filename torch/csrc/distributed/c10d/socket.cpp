@@ -35,6 +35,8 @@ C10_DIAGNOSTIC_POP()
 #include <torch/csrc/distributed/c10d/exception.h>
 #include <torch/csrc/distributed/c10d/logging.h>
 
+#include <c10/util/CallOnce.h>
+
 namespace c10d::detail {
 namespace {
 #ifdef _WIN32
