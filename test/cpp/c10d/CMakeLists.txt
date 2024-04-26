@@ -13,6 +13,7 @@ function(c10d_add_test test_src)
   if(NOT WIN32)
     target_link_libraries(${test_name} pthread)
   endif()
+  target_link_libraries(${test_name} fmt::fmt-header-only)
   add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
 endfunction()
 
