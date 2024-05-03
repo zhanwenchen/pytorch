@@ -2309,6 +2309,7 @@ def native_batch_norm_backward_out(
 
     return grad_input
 
+
 @register_decomposition(aten.miopen_batch_norm_backward)
 @out_wrapper("out0", "out1", "out2")
 def miopen_batch_norm_backward(
@@ -2333,6 +2334,7 @@ def miopen_batch_norm_backward(
         epsilon,
         [True, True, True],
     )
+
 
 @register_decomposition(aten.cudnn_batch_norm_backward)
 @out_wrapper("out0", "out1", "out2")
