@@ -168,9 +168,12 @@ def _get_scalar_dtype(is_fused=None):
     )
 
 
-def _get_capturable_supported_devices() -> List[str]:
+def _get_capturable_supported_devices(supports_xla: bool = True) -> List[str]:
     r"""Return the device type list that supports capturable optimizer."""
-    return ["cuda", "xla", torch._C._get_privateuse1_backend_name()]
+    capturable_supported_devices = ["cuda", torch._C._get_privateuse1_backend_name()]
+    if supports_xla:
+        capturable_supported_devices.append("xla")
+    return capturable_supported_devices
 
 
 # Common doc strings among optimizers
