@@ -280,7 +280,10 @@ def _single_tensor_asgd(
                 == eta.device.type
                 == step_t.device.type
                 and param.device.type in capturable_supported_devices
-            ), f"If capturable=True, params, mus, etas, and state_steps must be on supported devices: {capturable_supported_devices}."
+            ), (
+                f"If capturable=True, params, mus, etas, and state_steps must be "
+                f"on supported devices: {capturable_supported_devices}."
+            )
 
         if torch.is_complex(param):
             grad = torch.view_as_real(grad)

@@ -367,7 +367,10 @@ def _single_tensor_nadam(
             assert (
                 param.device.type == mu_product.device.type == step_t.device.type
                 and param.device.type in capturable_supported_devices
-            ), f"If capturable=True, params, mu_products, and state_steps must be on supported devices: {capturable_supported_devices}."
+            ), (
+                f"If capturable=True, params, mu_products and state_steps must be "
+                f"on supported devices: {capturable_supported_devices}."
+            )
 
         # update step
         step_t += 1
