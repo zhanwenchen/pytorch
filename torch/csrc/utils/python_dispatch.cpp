@@ -917,6 +917,7 @@ void initDispatchBindings(PyObject* module) {
 
   using c10::impl::TorchDispatchModeKey;
   py::enum_<TorchDispatchModeKey>(m, "_TorchDispatchModeKey")
+      .value("SCHEMA", TorchDispatchModeKey::SCHEMA)
       .value("FUNCTIONAL", TorchDispatchModeKey::FUNCTIONAL)
       .value("PROXY", TorchDispatchModeKey::PROXY)
       .value("FAKE", TorchDispatchModeKey::FAKE);

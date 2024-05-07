@@ -419,7 +419,7 @@ def key_extractor(tensors, key_mask):
 # slot 1 belongs to FunctionalTensorMode.
 class _ModeStackStateForPreDispatch:
     def __init__(self):
-        self.__infra_modes = [None, None]
+        self.__infra_modes = [None, None, None]
 
     def set(self, index, mode):
         assert index < len(self.__infra_modes)
@@ -441,6 +441,7 @@ def unset_mode_pre_dispatch(mode_key):
     assert mode_key in (
         torch._C._TorchDispatchModeKey.PROXY,
         torch._C._TorchDispatchModeKey.FUNCTIONAL,
+        torch._C._TorchDispatchModeKey.SCHEMA,
     )
 
     def _unset_mode():
@@ -448,9 +449,13 @@ def unset_mode_pre_dispatch(mode_key):
             current_mode = current_mode_stack_pre_dispatch.get(0)
             mode_stack_state_for_pre_dispatch().set(0, None)
             return current_mode
-        else:
+        elif mode_key == torch._C._TorchDispatchModeKey.FUNCTIONAL:
             current_mode = current_mode_stack_pre_dispatch.get(1)
             mode_stack_state_for_pre_dispatch().set(1, None)
+            return current_mode
+        else:
+            current_mode = current_mode_stack_pre_dispatch.get(2)
+            mode_stack_state_for_pre_dispatch().set(2, None)
             return current_mode
 
     current_mode = _unset_mode()
@@ -470,12 +475,24 @@ def unset_mode_pre_dispatch(mode_key):
 
 def _set_mode_pre_dispatch(mode):
     from torch._subclasses.functional_tensor import FunctionalTensorMode
+    from torch._subclasses.schema_check_mode import SchemaCheckMode
     from torch.fx.experimental.proxy_tensor import ProxyTorchDispatchMode
 
-    assert isinstance(mode, (FunctionalTensorMode, ProxyTorchDispatchMode))
+    assert isinstance(
+        mode,
+        (
+            FunctionalTensorMode,
+            ProxyTorchDispatchMode,
+            SchemaCheckMode,
+        ),
+    )
 
     previous_mode_stack_len = _len_torch_dispatch_stack_pre_dispatch()
-    if isinstance(mode, FunctionalTensorMode):
+    if isinstance(mode, SchemaCheckMode):
+        current_mode = mode_stack_state_for_pre_dispatch().get(2)
+        assert current_mode is None
+        mode_stack_state_for_pre_dispatch().set(2, mode)
+    elif isinstance(mode, FunctionalTensorMode):
         current_mode = mode_stack_state_for_pre_dispatch().get(1)
         assert current_mode is None
         mode_stack_state_for_pre_dispatch().set(1, mode)
@@ -501,6 +518,9 @@ def _pop_mode_from_pre_dispatch():
     if pre_dispatch_len == 0:
         raise AssertionError("Trying to pop empty mode stack")
 
+    if mode_stack.get(2) is not None:
+        return unset_mode_pre_dispatch(torch._C._TorchDispatchModeKey.SCHEMA)
+
     if mode_stack.get(1) is not None:
         return unset_mode_pre_dispatch(torch._C._TorchDispatchModeKey.FUNCTIONAL)
 
@@ -516,22 +536,20 @@ def _get_dispatch_mode_pre_dispatch(mode_key):
     assert mode_key in (
         torch._C._TorchDispatchModeKey.PROXY,
         torch._C._TorchDispatchModeKey.FUNCTIONAL,
+        torch._C._TorchDispatchModeKey.SCHEMA,
     )
     if mode_key == torch._C._TorchDispatchModeKey.PROXY:
         return mode_stack_state_for_pre_dispatch().get(0)
-    return mode_stack_state_for_pre_dispatch().get(1)
+    elif mode_key == torch._C._TorchDispatchModeKey.FUNCTIONAL:
+        return mode_stack_state_for_pre_dispatch().get(1)
+    else:
+        return mode_stack_state_for_pre_dispatch().get(2)
 
 
 def _get_current_dispatch_mode_pre_dispatch():
-    stack_len = mode_stack_state_for_pre_dispatch().count()
-    if stack_len == 2:
-        return mode_stack_state_for_pre_dispatch().get(1)
-    if stack_len == 1:
-        return (
-            mode_stack_state_for_pre_dispatch().get(1)
-            if mode_stack_state_for_pre_dispatch().get(1) is not None
-            else mode_stack_state_for_pre_dispatch().get(0)
-        )
+    for index in range(2, -1, -1):
+        if (mode := mode_stack_state_for_pre_dispatch().get(index)) is not None:
+            return mode
     return None
 
 
