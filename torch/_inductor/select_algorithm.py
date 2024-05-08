@@ -1090,6 +1090,9 @@ class AlgorithmSelectorCache(PersistentCache):
             )
             autotune_elapse = time.time() - autotune_start_ts
 
+            if all(not math.isfinite(timing) for timing in timings.values()):
+                raise NoValidChoicesError()
+
             if make_benchmark_fn.cache_info().currsize:
                 counters["inductor"]["select_algorithm_autotune"] += 1
 
@@ -1141,8 +1144,6 @@ class AlgorithmSelectorCache(PersistentCache):
 
         selected_key = builtins.min(timings, key=timings.__getitem__)
         selected_time = timings[selected_key]
-        if (not isinstance(selected_time, float)) or (not math.isfinite(selected_time)):
-            raise NoValidChoicesError
         selected_choice = selected_key.output_node()
         log.debug("selected choice: %s", str(selected_choice))
         return selected_choice
@@ -1242,6 +1243,9 @@ class AlgorithmSelectorCache(PersistentCache):
                         "CUDA compilation error during autotuning: \n%s. \nIgnoring this choice.",
                         str(e),
                     )
+                    timing = float("inf")
+                except NotImplementedError as e:
+                    log.warning("Not yet implemented: %s", e)
                     timing = float("inf")
                 except RuntimeError as e:
                     msg = str(e)
