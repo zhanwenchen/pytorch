@@ -70,7 +70,18 @@ def get_max_y_grid():
     return 65535
 
 
-def do_bench(*args, **kwargs):
+def do_bench(fn, fn_args, fn_kwargs, **kwargs):
+    from torch._inductor.utils import is_cpu_device
+
+    args = list(fn_args)
+    args.extend(fn_kwargs.values())
+    if is_cpu_device(args):
+        return do_bench_cpu(lambda: fn(*fn_args, **fn_kwargs), **kwargs)
+    else:
+        return do_bench_gpu(lambda: fn(*fn_args, **fn_kwargs), **kwargs)
+
+
+def do_bench_gpu(fn, **kwargs):
     @functools.lru_cache(None)
     def load_triton():
         try:
@@ -98,7 +109,7 @@ def do_bench(*args, **kwargs):
 
     if quantile_field_name not in kwargs:
         kwargs[quantile_field_name] = (0.5, 0.2, 0.8)
-    return triton_do_bench(*args, **kwargs)[0]
+    return triton_do_bench(fn, **kwargs)[0]
 
 
 def do_bench_cpu(fn, warmup=5, times=20):
