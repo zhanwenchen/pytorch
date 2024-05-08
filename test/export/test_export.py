@@ -2381,7 +2381,9 @@ def forward(self, x):
         ep = export(M(), (torch.tensor(1), torch.ones(4, 5)))
 
         if is_non_strict_test(self._testMethodName):
-            error_msg = "Invalid value range"
+            error_msg = r"Trying to create tensor with negative dimension -1"
+        elif is_retracebility_test(self._testMethodName):
+            error_msg = r"Runtime assertion failed for _local_scalar_dense_default >= 0"
         else:
             error_msg = "is outside of inline constraint"
         with self.assertRaisesRegex(RuntimeError, error_msg):
