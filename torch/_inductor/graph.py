@@ -67,6 +67,7 @@ from .ir import (
     Reduction,
     StorageBox,
     TensorBox,
+    TorchBindObject,
 )
 from .lowering import (
     constrain_to_fx_strides,
@@ -358,6 +359,7 @@ class GraphLowering(torch.fx.Interpreter):
         self.constants: Dict[str, torch.Tensor] = (
             const_module.constants if const_module else {}
         )
+        self.torchbind_constants: Dict[str, torch._C.ScriptObject] = {}
         self.constant_reprs: Dict[str, str] = {}
         self.removed_buffers: Set[str] = set()
         self.removed_inplace_buffers: Set[str] = set()
@@ -991,6 +993,11 @@ class GraphLowering(torch.fx.Interpreter):
 
         if isinstance(value, torch.fx.GraphModule):
             return ir.Subgraph(name=target, graph_module=value)
+
+        if isinstance(value, torch._C.ScriptObject):
+            self.torchbind_constants[target] = value
+            self.constant_reprs[target] = ""
+            return TorchBindObject(target, value)
 
         if (
             config.aot_inductor.use_runtime_constant_folding
