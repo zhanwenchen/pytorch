@@ -17,6 +17,13 @@ from torch.utils._python_dispatch import (
 not_implemented_log = torch._logging.getArtifactLogger(__name__, "not_implemented")
 
 
+def _conversion_method_template(**extra_kwargs):
+    def _(self, *args, **kwargs):
+        return self.to(*args, **{**kwargs, **extra_kwargs})
+
+    return _
+
+
 class FunctionalTensor(torch.Tensor):
     """
     Functional tensors represent tensors that will remove mutations
@@ -224,6 +231,24 @@ class FunctionalTensor(torch.Tensor):
             if len([arg for arg in args if isinstance(arg, bool)]) <= 1:
                 return super().to(*args, **{**kwargs, "copy": True})
         return super().to(*args, **kwargs)
+
+    def cuda(self, device=None, *args, **kwargs):
+        device = device or torch.cuda.current_device()
+        if len(args) > 0:
+            return self.to(device, *args, **kwargs)
+        else:
+            return self.to(device=device, **kwargs)
+
+    char = _conversion_method_template(dtype=torch.int8)
+    cpu = _conversion_method_template(device=torch.device("cpu"))
+    bfloat16 = _conversion_method_template(dtype=torch.bfloat16)
+    byte = _conversion_method_template(dtype=torch.uint8)
+    double = _conversion_method_template(dtype=torch.float64)
+    float = _conversion_method_template(dtype=torch.float32)
+    bool = _conversion_method_template(dtype=torch.bool)
+    half = _conversion_method_template(dtype=torch.float16)
+    int = _conversion_method_template(dtype=torch.int32)
+    long = _conversion_method_template(dtype=torch.int64)
 
 
 class FunctionalTensorMode(TorchDispatchMode):
