@@ -40,9 +40,12 @@ For CUDA and CPU, APIs are also provided separately:
 
 Autocasting
 ^^^^^^^^^^^
-.. currentmodule:: torch.amp.autocast_mode
+:func:`torch.amp.is_autocast_available` is used to indicate if autocast is supported.
+.. autosummary::
+    :toctree: generated
+    :nosignatures:
 
-.. autofunction::  is_autocast_available
+    is_autocast_available
 
 .. currentmodule:: torch
 
@@ -394,6 +397,7 @@ regardless of whether autocast is enabled.
 
 .. This module needs to be documented. Adding here in the meantime
 .. for tracking purposes
+.. py:module:: torch.amp
 .. py:module:: torch.amp.autocast_mode
 .. py:module:: torch.cpu.amp.autocast_mode
 .. py:module:: torch.cuda.amp.autocast_mode
