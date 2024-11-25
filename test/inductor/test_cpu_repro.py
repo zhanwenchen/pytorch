@@ -3446,9 +3446,7 @@ class CPUReproTests(TestCase):
 
         torch._dynamo.mark_dynamic(data, 2)
         torch._dynamo.mark_dynamic(data, 3)
-        self.common(
-            fn, (data, weight_one, weight_two, bias_one, bias_two)
-        )
+        self.common(fn, (data, weight_one, weight_two, bias_one, bias_two))
 
     def test_to_channels_last_lowp_fp(self):
         def f(a):
