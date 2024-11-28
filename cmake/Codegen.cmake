@@ -57,7 +57,7 @@ if(INTERN_BUILD_ATEN_OPS)
   if(MSVC)
     set(OPT_FLAG "/fp:strict ")
   else(MSVC)
-    set(OPT_FLAG "-O3 ")
+    set(OPT_FLAG "-O3 -march=native")
     if("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
       set(OPT_FLAG " ")
     endif()
@@ -268,7 +268,7 @@ if(INTERN_BUILD_ATEN_OPS)
   list(APPEND CPU_CAPABILITY_FLAGS "${OPT_FLAG}")
 
   if(CXX_AVX512_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_AVX512_CPU_DEFINITION")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_AVX512_CPU_DEFINITION -march=native")
     list(APPEND CPU_CAPABILITY_NAMES "AVX512")
     if(MSVC)
       list(APPEND CPU_CAPABILITY_FLAGS "${OPT_FLAG}/arch:AVX512")
@@ -278,7 +278,7 @@ if(INTERN_BUILD_ATEN_OPS)
   endif(CXX_AVX512_FOUND)
 
   if(CXX_AVX2_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_AVX2_CPU_DEFINITION")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_AVX2_CPU_DEFINITION -march=native")
 
     # Some versions of GCC pessimistically split unaligned load and store
     # instructions when using the default tuning. This is a bad choice on

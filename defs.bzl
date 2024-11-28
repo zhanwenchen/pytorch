@@ -10,6 +10,7 @@ def get_blas_gomp_arch_deps():
     ]
 
 default_compiler_flags = [
+    "-march=native",
     "-Wall",
     "-Wextra",
     "-Wno-unused-function",

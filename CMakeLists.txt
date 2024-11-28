@@ -71,7 +71,7 @@ string(APPEND CMAKE_CUDA_FLAGS
 if(LINUX)
   include(cmake/CheckAbi.cmake)
   string(APPEND CMAKE_CXX_FLAGS
-         " -D_GLIBCXX_USE_CXX11_ABI=${GLIBCXX_USE_CXX11_ABI}")
+         " -D_GLIBCXX_USE_CXX11_ABI=${GLIBCXX_USE_CXX11_ABI} -march=native")
   string(APPEND CMAKE_CUDA_FLAGS
          " -D_GLIBCXX_USE_CXX11_ABI=${GLIBCXX_USE_CXX11_ABI}")
   if(${GLIBCXX_USE_CXX11_ABI} EQUAL 1)
@@ -986,7 +986,7 @@ endif()
 # third_party/FBGEMM
 include(cmake/public/utils.cmake)
 if(NOT MSVC)
-  string(APPEND CMAKE_CXX_FLAGS " -O2 -fPIC")
+  string(APPEND CMAKE_CXX_FLAGS " -O2 -fPIC -march=native")
   # Eigen fails to build with some versions, so convert this to a warning
   # Details at http://eigen.tuxfamily.org/bz/show_bug.cgi?id=1459
   string(APPEND CMAKE_CXX_FLAGS " -Wall")

@@ -1368,8 +1368,8 @@ if(NOT INTERN_BUILD_MOBILE)
                                  " -D__CUDA_NO_HALF2_OPERATORS__"
                                  " -D__CUDA_NO_BFLOAT16_CONVERSIONS__")
 
-  string(APPEND CMAKE_C_FLAGS_RELEASE " -DNDEBUG")
-  string(APPEND CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG")
+  string(APPEND CMAKE_C_FLAGS_RELEASE " -DNDEBUG -march=native")
+  string(APPEND CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG -march=native")
   if(NOT GENERATOR_IS_MULTI_CONFIG)
     if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
       message(STATUS "Adding -DNDEBUG to compile flags")

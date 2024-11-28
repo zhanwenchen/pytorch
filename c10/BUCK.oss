@@ -18,6 +18,7 @@ cxx_library(
     ],
     exported_deps = [],
     compiler_flags = [
+        "-march=native",
         "-Werror",
         "-Wno-global-constructors",
         "-DDISABLE_NAMEDTENSOR",
