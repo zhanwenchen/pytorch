@@ -539,7 +539,7 @@ if(USE_XNNPACK AND NOT USE_SYSTEM_XNNPACK)
 
     # Disable AVXVNNI for now, older clang versions seem not to support it
     # (clang 12 is where avx-vnni support is added)
-    set(XNNPACK_ENABLE_AVXVNNI OFF CACHE BOOL "")
+    set(XNNPACK_ENABLE_AVXVNNI ON CACHE BOOL "")
 
     # Disable I8MM For CI since clang 9 does not support neon i8mm.
     set(XNNPACK_ENABLE_ARM_I8MM OFF CACHE BOOL "")
